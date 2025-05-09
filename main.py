@@ -28,7 +28,7 @@ class ChatbotModel(nn.Module):
         x = self.relu(x)
         x = self.dropout(x)
         x = self.fc2(x)
-        x = self.relu(x)
+        x = self.relu(x)    
         x = self.dropout(x)
         x = self.fc3(x)
         return x
@@ -162,7 +162,19 @@ class ChatbotAssistant:
             return random.choice(self.intents_responses[predicted_intent])
         else:
             return "I'm sorry, I don't understand that."
+        
+def get_stocks():
+    stocks = ['AAPL', 'GOOGL', 'MSFT','NVDA','AMZN']
 
+    return random.sample(stocks, 3)
+
+if __name__ == "__main__":
+    assistant = ChatbotAssistant('intents.json' ,function_mapping={'stocks': get_stocks})
+    assistant.parse_intents()
+    assistant.prepare_data()
+    assistant.train_model(batch_size=8, lr=0.001, epochs=100)
+
+    assistant.save_model('chatbot_model.pth', 'dimensions.json')
 
    
                
