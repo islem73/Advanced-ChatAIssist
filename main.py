@@ -9,6 +9,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader , TensorDataset
+import gradio as gr
+
 
 
 # nltk.download('punkt_tab')
@@ -168,22 +170,25 @@ def get_stocks():
 
     print(random.sample(stocks, 3))
 
-if __name__ == "__main__":
-    assistant = ChatbotAssistant('intents.json' ,function_mapping={'stocks': get_stocks})
-    #assistant.parse_intents()
-    #assistant.prepare_data()
-    #assistant.train_model(batch_size=8, lr=0.001, epochs=100)
 
+if __name__ == "__main__":
+    assistant = ChatbotAssistant('intents.json', function_mapping={'stocks': get_stocks})
     assistant.parse_intents()
     assistant.load_model('chatbot_model.pth', 'dimensions.json')
 
-    while True :
-        message = input ("Enter your message: ")
+    # Define chatbot function for Gradio
+    def chatbot_response(message):
+        return assistant.process_message(message)
 
-        if message == '/quit':
-           break
+    # Create Gradio Interface
+    gr.Interface(
+        fn=chatbot_response,
+        inputs=gr.Textbox(lines=2, placeholder="Type your message here..."),
+        outputs="text",
+        title="💬 ChatAIssist ",
+        description="Talk to your AI assistant!"
+    ).launch()
 
-        print(assistant.process_message(message))
     
 
    
