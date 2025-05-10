@@ -131,7 +131,7 @@ class ChatbotAssistant:
             json.dump({
                 'input_size': self.X.shape[1],
                 'output_size': len(self.intents),
-
+                
             }, f)
 
     def load_model(self, model_path , dimension_path):
@@ -143,14 +143,14 @@ class ChatbotAssistant:
 
     def process_message(self, message):
         words = self.tokanize_and_lemmatize(message)
-        bag = self.bag_of_words(message)
+        bag = self.bag_of_words(words)
         bag_tensor = torch.tensor(bag, dtype=torch.float32)
 
         self.model.eval()
         with torch.no_grad():
             prediction = self.model(bag_tensor)
         
-        prediction_index = torch.argmax(prediction , dim=1).item()
+        prediction_index = torch.argmax(prediction).item()
 
         predicted_intent = self.intents[prediction_index]
 
@@ -166,15 +166,25 @@ class ChatbotAssistant:
 def get_stocks():
     stocks = ['AAPL', 'GOOGL', 'MSFT','NVDA','AMZN']
 
-    return random.sample(stocks, 3)
+    print(random.sample(stocks, 3))
 
 if __name__ == "__main__":
     assistant = ChatbotAssistant('intents.json' ,function_mapping={'stocks': get_stocks})
-    assistant.parse_intents()
-    assistant.prepare_data()
-    assistant.train_model(batch_size=8, lr=0.001, epochs=100)
+    #assistant.parse_intents()
+    #assistant.prepare_data()
+    #assistant.train_model(batch_size=8, lr=0.001, epochs=100)
 
-    assistant.save_model('chatbot_model.pth', 'dimensions.json')
+    assistant.parse_intents()
+    assistant.load_model('chatbot_model.pth', 'dimensions.json')
+
+    while True :
+        message = input ("Enter your message: ")
+
+        if message == '/quit':
+           break
+
+        print(assistant.process_message(message))
+    
 
    
                
